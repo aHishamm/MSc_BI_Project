@@ -4,6 +4,27 @@ from plotly.subplots import make_subplots
 import plotly.graph_objects as go 
 import matplotlib.pyplot as plt 
 import plotly.express as px 
+from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report,accuracy_score
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import VotingClassifier
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
+OPTION_LIST = ['Gender and Churn Distribution','Customer Contract Distribution','Payment Method Distribution','Payment Method Distribution Churn',
+              'Churn Distribution w.r.t Internet Service and Gender','Dependents Distribution Churn',
+              'Churn Distribution w.r.t Partners','Churn Distribution w.r.t Senior Citizens',
+              'Churn Distribution w.r.t Online Security','Churn Distribution w.r.t Paperless Billing',
+              'Churn Distribution w.r.t Tech Support','Churn Distribution w.r.t Phone Service',
+              'Tenure vs. Churn']
+MODEL_SELECTOR = ['KNN','SVC','RF','LR','DT','Adaboost','Gradient Boosting','Voting Classifier']
+num_cols = ["tenure", 'MonthlyCharges', 'TotalCharges']
+scaler= StandardScaler()
 def preprocess(df): 
     df = df.drop(['customerID'], axis = 1)
     df['TotalCharges'] = pd.to_numeric(df.TotalCharges, errors='coerce')
@@ -14,6 +35,73 @@ def preprocess(df):
     df.fillna(df["TotalCharges"].mean())
     df["SeniorCitizen"]= df["SeniorCitizen"].map({0: "No", 1: "Yes"})
     return df 
+def object_to_int(dataframe_series):
+    if dataframe_series.dtype=='object':
+        dataframe_series = LabelEncoder().fit_transform(dataframe_series)
+    return dataframe_series
+def standardize_dataframe(filepath,option,test_size,random_state): 
+    df = pd.read_csv(filepath)
+    print(df)
+    df = preprocess(df)
+    print(df)
+    #label encoding the dataframe 
+    df = df.apply(lambda x: object_to_int(x))
+    #inputs and target selection 
+    X = df.drop(columns = ['Churn'])
+    y = df['Churn'].values
+    #train test split (Allowing the user to choose the optimal train/test split percentage)
+    X_train, X_test, y_train, y_test = train_test_split(X,y,test_size = test_size, random_state = random_state, stratify=y)
+    #Standardizing the variables 
+    df_std = pd.DataFrame(StandardScaler().fit_transform(df[num_cols].astype('float64')),columns=num_cols)
+    X_train[num_cols] = scaler.fit_transform(X_train[num_cols])
+    X_test[num_cols] = scaler.transform(X_test[num_cols])
+    if option == 'KNN': 
+        knn_model = KNeighborsClassifier(n_neighbors = 11) 
+        knn_model.fit(X_train,y_train)
+        predicted_y = knn_model.predict(X_test)
+        return accuracy_score(predicted_y,y_test), classification_report(y_test, predicted_y),df
+    elif option == 'SVC': 
+        svc_model = SVC(random_state = 1)
+        svc_model.fit(X_train,y_train)
+        predicted_y = svc_model.predict(X_test)
+        return accuracy_score(predicted_y,y_test), classification_report(y_test,predicted_y),df
+    elif option == 'RF': 
+        model_rf = RandomForestClassifier(n_estimators=500 , oob_score = True, n_jobs = -1,
+                                  random_state =50, max_features = "auto",
+                                  max_leaf_nodes = 30)
+        model_rf.fit(X_train, y_train)
+        predicted_y = model_rf.predict(X_test)
+        return accuracy_score(y_test, predicted_y), classification_report(y_test,predicted_y),df
+    elif option == 'LR': 
+        lr_model = LogisticRegression()
+        lr_model.fit(X_train,y_train)
+        predicted_y = lr_model.predict(X_test)
+        return accuracy_score(predicted_y,y_test), classification_report(y_test,predicted_y),df
+    elif option == 'DT': 
+        dt_model = DecisionTreeClassifier()
+        dt_model.fit(X_train,y_train)
+        predicted_y = dt_model.predict(X_test)
+        return accuracy_score(predicted_y,y_test), classification_report(y_test,predicted_y),df
+    elif option == 'Adaboost': 
+        a_model = AdaBoostClassifier()
+        a_model.fit(X_train,y_train)
+        predicted_y = a_model.predict(X_test)
+        return accuracy_score(predicted_y,y_test), classification_report(y_test,predicted_y),df
+    elif option == 'Gradient Boosting': 
+        gb = GradientBoostingClassifier()
+        gb.fit(X_train, y_train)
+        predicted_y = gb.predict(X_test)
+        return accuracy_score(predicted_y,y_test), classification_report(y_test,predicted_y),df
+    elif option == 'Voting Classifier': 
+        clf1 = GradientBoostingClassifier()
+        clf2 = LogisticRegression()
+        clf3 = AdaBoostClassifier()
+        eclf1 = VotingClassifier(estimators=[('gbc', clf1), ('lr', clf2), ('abc', clf3)], voting='soft')
+        eclf1.fit(X_train, y_train)
+        predicted_y = eclf1.predict(X_test)
+        return accuracy_score(predicted_y,y_test), classification_report(y_test,predicted_y),df
+
+
 def visualize(df,option): 
     if option == 'Gender and Churn Distribution': 
         g_labels = ['Male', 'Female']
@@ -113,13 +201,8 @@ def visualize(df,option):
         )
         return fig  
 
-
 def take_input(filepath,option): 
     df = pd.read_csv(filepath)
     processed_df = preprocess(df)
     figure = visualize(processed_df,option)
-    return figure 
-
-
-
-
+    return figure, processed_df
