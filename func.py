@@ -39,8 +39,8 @@ def object_to_int(dataframe_series):
     if dataframe_series.dtype=='object':
         dataframe_series = LabelEncoder().fit_transform(dataframe_series)
     return dataframe_series
-def evaluate_voter(test_feature_vector, filepath,test_size,random_state): 
-    df = pd.read_csv(filepath)
+def evaluate_voter(test_feature_vector, df,test_size,random_state): 
+    print(df)
     df = preprocess(df)
     df = df.apply(lambda x: object_to_int(x))
     X = df.drop(columns = ['Churn'])
@@ -55,10 +55,16 @@ def evaluate_voter(test_feature_vector, filepath,test_size,random_state):
     eclf1 = VotingClassifier(estimators=[('gbc', clf1), ('lr', clf2), ('abc', clf3)], voting='soft')
     eclf1.fit(X_train, y_train)
     #feeding the feature vector as a test input 
-    
+    predicted_y = eclf1.predict(test_feature_vector)
+    if predicted_y[0] == 1: 
+        #print('The customer is likely to stop using the services')
+        return 'Customer is likely to stop using the telecom services'
+    else: 
+        #print('The customer is likely to continue using the services')
+        return 'Customer is likely to continue using the telecom services'
 
 
-def standardize_feature_vector(df): 
+def standardize_feature_vector(df,original_df, test_size,random_state): 
     df = df.drop(['customerID'], axis = 1) 
     df['TotalCharges'] = pd.to_numeric(df.TotalCharges, errors='coerce')
     #Manual label encoding is the only solution here... 
@@ -83,61 +89,62 @@ def standardize_feature_vector(df):
     print(df)
     print(numpy_vector)
     #passing the vector as a test vector to a trained voting classifier
+    return evaluate_voter(df,original_df,test_size,random_state)
 
 
 def standardize_dataframe(filepath,option,test_size,random_state): 
     df = pd.read_csv(filepath)
-    print(df)
-    df = preprocess(df)
-    print(df)
+    #print(df)
+    df_new = preprocess(df)
+    #print(df)
     #label encoding the dataframe 
-    df = df.apply(lambda x: object_to_int(x))
+    df_new = df_new.apply(lambda x: object_to_int(x))
     #inputs and target selection 
-    X = df.drop(columns = ['Churn'])
-    y = df['Churn'].values
+    X = df_new.drop(columns = ['Churn'])
+    y = df_new['Churn'].values
     #train test split (Allowing the user to choose the optimal train/test split percentage)
     X_train, X_test, y_train, y_test = train_test_split(X,y,test_size = test_size, random_state = random_state, stratify=y)
     #Standardizing the variables 
-    df_std = pd.DataFrame(StandardScaler().fit_transform(df[num_cols].astype('float64')),columns=num_cols)
+    df_std = pd.DataFrame(StandardScaler().fit_transform(df_new[num_cols].astype('float64')),columns=num_cols)
     X_train[num_cols] = scaler.fit_transform(X_train[num_cols])
     X_test[num_cols] = scaler.transform(X_test[num_cols])
     if option == 'KNN': 
         knn_model = KNeighborsClassifier(n_neighbors = 11) 
         knn_model.fit(X_train,y_train)
         predicted_y = knn_model.predict(X_test)
-        return accuracy_score(predicted_y,y_test), classification_report(y_test, predicted_y),df
+        return accuracy_score(predicted_y,y_test), classification_report(y_test, predicted_y),df_new,df
     elif option == 'SVC': 
         svc_model = SVC(random_state = 1)
         svc_model.fit(X_train,y_train)
         predicted_y = svc_model.predict(X_test)
-        return accuracy_score(predicted_y,y_test), classification_report(y_test,predicted_y),df
+        return accuracy_score(predicted_y,y_test), classification_report(y_test,predicted_y),df_new,df
     elif option == 'RF': 
         model_rf = RandomForestClassifier(n_estimators=500 , oob_score = True, n_jobs = -1,
                                   random_state =50, max_features = "auto",
                                   max_leaf_nodes = 30)
         model_rf.fit(X_train, y_train)
         predicted_y = model_rf.predict(X_test)
-        return accuracy_score(y_test, predicted_y), classification_report(y_test,predicted_y),df
+        return accuracy_score(y_test, predicted_y), classification_report(y_test,predicted_y),df_new,df
     elif option == 'LR': 
         lr_model = LogisticRegression()
         lr_model.fit(X_train,y_train)
         predicted_y = lr_model.predict(X_test)
-        return accuracy_score(predicted_y,y_test), classification_report(y_test,predicted_y),df
+        return accuracy_score(predicted_y,y_test), classification_report(y_test,predicted_y),df_new,df
     elif option == 'DT': 
         dt_model = DecisionTreeClassifier()
         dt_model.fit(X_train,y_train)
         predicted_y = dt_model.predict(X_test)
-        return accuracy_score(predicted_y,y_test), classification_report(y_test,predicted_y),df
+        return accuracy_score(predicted_y,y_test), classification_report(y_test,predicted_y),df_new,df
     elif option == 'Adaboost': 
         a_model = AdaBoostClassifier()
         a_model.fit(X_train,y_train)
         predicted_y = a_model.predict(X_test)
-        return accuracy_score(predicted_y,y_test), classification_report(y_test,predicted_y),df
+        return accuracy_score(predicted_y,y_test), classification_report(y_test,predicted_y),df_new,df
     elif option == 'Gradient Boosting': 
         gb = GradientBoostingClassifier()
         gb.fit(X_train, y_train)
         predicted_y = gb.predict(X_test)
-        return accuracy_score(predicted_y,y_test), classification_report(y_test,predicted_y),df
+        return accuracy_score(predicted_y,y_test), classification_report(y_test,predicted_y),df_new,df
     elif option == 'Voting Classifier': 
         clf1 = GradientBoostingClassifier()
         clf2 = LogisticRegression()
@@ -145,7 +152,7 @@ def standardize_dataframe(filepath,option,test_size,random_state):
         eclf1 = VotingClassifier(estimators=[('gbc', clf1), ('lr', clf2), ('abc', clf3)], voting='soft')
         eclf1.fit(X_train, y_train)
         predicted_y = eclf1.predict(X_test)
-        return accuracy_score(predicted_y,y_test), classification_report(y_test,predicted_y),df
+        return accuracy_score(predicted_y,y_test), classification_report(y_test,predicted_y),df_new,df
 
 
 def visualize(df,option): 

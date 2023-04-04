@@ -38,7 +38,7 @@ modelList = fc.MODEL_SELECTOR
 with tab1: 
     option = st.selectbox('Select the plot you want to visualize',optionList)
     uploaded_dataframe = st.file_uploader("Choose a file")
-    print(type(uploaded_dataframe))
+    #print(type(uploaded_dataframe))
 if uploaded_dataframe is not None: 
     if option is not None : 
         figure,processed_df = fc.take_input(uploaded_dataframe,option)
@@ -51,16 +51,16 @@ with tab3:
     uploaded_dataframe = st.file_uploader("Choose a file", key=2)
     test_size_slider = st.slider('Enter the test size: ',0.0,1.0)
     random_state_input = st.number_input('Select a random seed',0,1000)
-    print(test_size_slider)
+    #print(test_size_slider)
     if uploaded_dataframe is not None:    
         #Add a slider later the test_size, and a input box for the random state
-        print(uploaded_dataframe)
-        acc_score, classification_rep, output_df = fc.standardize_dataframe(uploaded_dataframe,modeloption,test_size_slider,random_state_input) 
+        #print(uploaded_dataframe)
+        acc_score, classification_rep, output_df,original_df = fc.standardize_dataframe(uploaded_dataframe,modeloption,test_size_slider,random_state_input) 
         st.dataframe(output_df)
         #st.write('Accuracy Score of '+modeloption+' is: '+str(acc_score))
         st.metric(label='Accuracy Score of '+modeloption,value=str(acc_score))
         st.markdown('```bash \t \n'+classification_rep+'```')
-        print(acc_score,'\n',classification_rep)
+        #print(acc_score,'\n',classification_rep)
         st.write('Enter some information to predict the churn:')
         pr_1 = st.selectbox('Select the gender:',['Female','Male'])
         pr_2 = st.selectbox('Is the customer a senior citizen?',['Yes','No'])
@@ -104,5 +104,6 @@ with tab3:
                                           'MonthlyCharges':[pr_18],
                                           'TotalCharges':[pr_19]})
             #passing the feature vector to be processed and predict a churn output 
-            print(feature_vector)
-            fc.standardize_feature_vector(feature_vector)
+            #print(feature_vector)
+            response = fc.standardize_feature_vector(feature_vector,original_df,test_size_slider,random_state_input)
+            st.metric(label='Prediction Response',value=response)
