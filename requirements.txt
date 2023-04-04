@@ -5,6 +5,4 @@ plotly
 streamlit
 matplotlib
 seaborn
-warnings
 xgboost
-catboost

@@ -23,7 +23,6 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from xgboost import XGBClassifier
-from catboost import CatBoostClassifier
 from sklearn import metrics
 from sklearn.metrics import roc_curve
 from sklearn.metrics import recall_score, confusion_matrix, precision_score, f1_score, accuracy_score, classification_report
