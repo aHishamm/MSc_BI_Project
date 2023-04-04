@@ -49,10 +49,13 @@ if uploaded_dataframe is not None:
 with tab3: 
     modeloption = st.selectbox('Select an ML Model',modelList)
     uploaded_dataframe = st.file_uploader("Choose a file", key=2)
+    test_size_slider = st.slider('Enter the test size: ',0.0,1.0)
+    random_state_input = st.number_input('Select a random seed',0,1000)
+    print(test_size_slider)
     if uploaded_dataframe is not None:    
         #Add a slider later the test_size, and a input box for the random state
         print(uploaded_dataframe)
-        acc_score, classification_rep, output_df = fc.standardize_dataframe(uploaded_dataframe,modeloption,0.30,40) 
+        acc_score, classification_rep, output_df = fc.standardize_dataframe(uploaded_dataframe,modeloption,test_size_slider,random_state_input) 
         st.dataframe(output_df)
         #st.write('Accuracy Score of '+modeloption+' is: '+str(acc_score))
         st.metric(label='Accuracy Score of '+modeloption,value=str(acc_score))
@@ -80,3 +83,26 @@ with tab3:
         pr_19 = st.number_input('What are the total charges of the customer?')
         if st.button('Predict Churn'): 
             #convert the inputs to a vector and pass it to a voting classifier algorithm
+            feature_vector = pd.DataFrame({'customerID':[1],
+                                           'gender':[pr_1], 
+                                          'SeniorCitizen':[pr_2],
+                                          'Partner':[pr_3],
+                                          'Dependents':[pr_4],
+                                          'tenure':[pr_5],
+                                          'PhoneService':[pr_6],
+                                          'MultipleLines':[pr_7],
+                                          'InternetService':[pr_8],
+                                          'OnlineSecurity':[pr_9],
+                                          'OnlineBackup':[pr_10],
+                                          'DeviceProtection':[pr_11],
+                                          'TechSupport':[pr_12], 
+                                          'StreamingTV':[pr_13],
+                                          'StreamingMovies':[pr_14],
+                                          'Contract':[pr_15],
+                                          'PaperlessBilling':[pr_16],
+                                          'PaymentMethod':[pr_17],
+                                          'MonthlyCharges':[pr_18],
+                                          'TotalCharges':[pr_19]})
+            #passing the feature vector to be processed and predict a churn output 
+            print(feature_vector)
+            fc.standardize_feature_vector(feature_vector)

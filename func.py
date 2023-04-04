@@ -39,6 +39,52 @@ def object_to_int(dataframe_series):
     if dataframe_series.dtype=='object':
         dataframe_series = LabelEncoder().fit_transform(dataframe_series)
     return dataframe_series
+def evaluate_voter(test_feature_vector, filepath,test_size,random_state): 
+    df = pd.read_csv(filepath)
+    df = preprocess(df)
+    df = df.apply(lambda x: object_to_int(x))
+    X = df.drop(columns = ['Churn'])
+    y = df['Churn'].values
+    X_train, X_test, y_train, y_test = train_test_split(X,y,test_size = test_size, random_state = random_state, stratify=y)
+    df_std = pd.DataFrame(StandardScaler().fit_transform(df[num_cols].astype('float64')),columns=num_cols)
+    X_train[num_cols] = scaler.fit_transform(X_train[num_cols])
+    X_test[num_cols] = scaler.transform(X_test[num_cols])
+    clf1 = GradientBoostingClassifier()
+    clf2 = LogisticRegression()
+    clf3 = AdaBoostClassifier()
+    eclf1 = VotingClassifier(estimators=[('gbc', clf1), ('lr', clf2), ('abc', clf3)], voting='soft')
+    eclf1.fit(X_train, y_train)
+    #feeding the feature vector as a test input 
+    
+
+
+def standardize_feature_vector(df): 
+    df = df.drop(['customerID'], axis = 1) 
+    df['TotalCharges'] = pd.to_numeric(df.TotalCharges, errors='coerce')
+    #Manual label encoding is the only solution here... 
+    df["SeniorCitizen"]= df["SeniorCitizen"].map({"No": 0, "Yes": 1})
+    df['gender'] = df['gender'].map({'Female':0,'Male':1}) 
+    df['Partner'] = df['Partner'].map({"No":0,"Yes":1})
+    df['Dependents'] = df['Dependents'].map({"No":0,"Yes":1}) 
+    df['PhoneService'] = df['PhoneService'].map({"No":0,"Yes":1}) 
+    df['MultipleLines'] = df['MultipleLines'].map({"No phone service":1,"No":0,"Yes":2})
+    df['InternetService'] = df['InternetService'].map({'DSL':0,'Fiber optic':1,'No':2}) 
+    df['OnlineSecurity'] = df['OnlineSecurity'].map({'No':0,'Yes':2,'No internet service':1}) 
+    df['OnlineBackup'] = df['OnlineBackup'].map({'No':0,'Yes':2,'No internet service':1})
+    df['DeviceProtection'] = df['DeviceProtection'].map({'No':0,'Yes':2,'No internet service':1})
+    df['TechSupport'] = df['TechSupport'].map({'No':0,'Yes':2,'No internet service':1})
+    df['StreamingTV'] = df['StreamingTV'].map({'No':0,'Yes':2,'No internet service':1})
+    df['StreamingMovies'] = df['StreamingMovies'].map({'No':0,'Yes':2,'No internet service':1})
+    df['Contract'] = df['Contract'].map({'Month-to-month':0,'One year':1})
+    df['PaperlessBilling'] = df['PaperlessBilling'].map({"No":0,"Yes":1})
+    df['PaymentMethod'] = df['PaymentMethod'].map({'Electronic check':2, 'Mailed check':3,'Bank transfer (automatic)':0,'Credit card (automatic)':1})
+    #Churn -> No:0, Yes:1 
+    numpy_vector = df.to_numpy() 
+    print(df)
+    print(numpy_vector)
+    #passing the vector as a test vector to a trained voting classifier
+
+
 def standardize_dataframe(filepath,option,test_size,random_state): 
     df = pd.read_csv(filepath)
     print(df)
