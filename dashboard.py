@@ -75,7 +75,7 @@ with tab3:
         pr_12 = st.selectbox('Does the customer have tech support?',['Yes','No','No internet service'])
         pr_13 = st.selectbox('Does the customer have streaming TV?',['Yes','No','No internet service'])
         pr_14 = st.selectbox('Does the customer have streaming movies?',['Yes','No','No internet service'])
-        pr_15 = st.selectbox('Does the customer have a contract?',['Month-to-month','One year']) 
+        pr_15 = st.selectbox('Does the customer have a contract?',['Month-to-month','One year','Two year']) 
         pr_16 = st.selectbox('Does the customer have paperless billing?',['Yes','No']) 
         pr_17 = st.selectbox('What is the payment method of the customer?',['Electronic check','Mailed check','Bank transfer (automatic)','Credit card (automatic)'])
         pr_18 = st.number_input('What are the monthly charges of the customer?')

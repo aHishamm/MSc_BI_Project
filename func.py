@@ -81,7 +81,7 @@ def standardize_feature_vector(df,original_df, test_size,random_state):
     df['TechSupport'] = df['TechSupport'].map({'No':0,'Yes':2,'No internet service':1})
     df['StreamingTV'] = df['StreamingTV'].map({'No':0,'Yes':2,'No internet service':1})
     df['StreamingMovies'] = df['StreamingMovies'].map({'No':0,'Yes':2,'No internet service':1})
-    df['Contract'] = df['Contract'].map({'Month-to-month':0,'One year':1})
+    df['Contract'] = df['Contract'].map({'Month-to-month':0,'One year':1,'Two year':2})
     df['PaperlessBilling'] = df['PaperlessBilling'].map({"No":0,"Yes":1})
     df['PaymentMethod'] = df['PaymentMethod'].map({'Electronic check':2, 'Mailed check':3,'Bank transfer (automatic)':0,'Credit card (automatic)':1})
     #Churn -> No:0, Yes:1 
