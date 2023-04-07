@@ -25,6 +25,8 @@ docker build -t biprojectimage .
 ```bash
 docker run -p 7250:7250 --name biprojectcontainer biprojectimage
 ```
+#### HuggingFace Deployment
+The project is hosted on HuggingFace and is available via the following link: https://huggingface.co/spaces/ahishamm/biproject
 #### Project Previews
 ###### Preview 1 
 ![Screenshot from 2023-04-07 19-12-13](https://user-images.githubusercontent.com/40188935/230633005-e58f5b64-c0cc-4c3b-83f3-d4126c186fa6.png)
@@ -36,4 +38,3 @@ docker run -p 7250:7250 --name biprojectcontainer biprojectimage
 ![Screenshot from 2023-04-07 19-13-07](https://user-images.githubusercontent.com/40188935/230633051-77979088-30d3-45dc-a8d1-7d5cad35457a.png)
 ###### Preview 5
 ![Screenshot from 2023-04-07 19-13-18](https://user-images.githubusercontent.com/40188935/230633152-acae3487-07cf-449a-8d61-98f858aeb7c2.png)
-
