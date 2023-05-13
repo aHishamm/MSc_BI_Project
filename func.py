@@ -155,107 +155,81 @@ def standardize_dataframe(filepath,option,test_size,random_state):
         return accuracy_score(predicted_y,y_test), classification_report(y_test,predicted_y),df_new,df
 
 
-def visualize(df,option): 
-    if option == 'Gender and Churn Distribution': 
-        g_labels = ['Male', 'Female']
-        c_labels = ['No', 'Yes']
-        # Create subplots: use 'domain' type for Pie subplot
-        fig = make_subplots(rows=1, cols=2, specs=[[{'type':'domain'}, {'type':'domain'}]])
-        fig.add_trace(go.Pie(labels=g_labels, values=df['gender'].value_counts(), name="Gender"),
-                      1, 1)
-        fig.add_trace(go.Pie(labels=c_labels, values=df['Churn'].value_counts(), name="Churn"),
-                      1, 2)
-        # Use `hole` to create a donut-like pie chart
-        fig.update_traces(hole=.4, hoverinfo="label+percent+name", textfont_size=16)
-        fig.update_layout(
-            title_text="Gender and Churn Distributions",
-            # Add annotations in the center of the donut pies.
-            annotations=[dict(text='Gender', x=0.16, y=0.5, font_size=20, showarrow=False),
-                         dict(text='Churn', x=0.84, y=0.5, font_size=20, showarrow=False)])
-        return fig 
-    elif option == 'Customer Contract Distribution': 
-        fig = px.histogram(df, x="Churn", color="Contract", barmode="group", title="<b>Customer contract distribution<b>")
-        fig.update_layout(width=700, height=500, bargap=0.1)
-        return fig 
-    elif option == 'Payment Method Distribution': 
-        labels = df['PaymentMethod'].unique()
-        values = df['PaymentMethod'].value_counts()
+def visualize(df): 
+    g_labels = ['Male', 'Female']
+    c_labels = ['No', 'Yes']
+    # Create subplots: use 'domain' type for Pie subplot
+    fig1 = make_subplots(rows=1, cols=2, specs=[[{'type':'domain'}, {'type':'domain'}]])
+    fig1.add_trace(go.Pie(labels=g_labels, values=df['gender'].value_counts(), name="Gender"),
+                  1, 1)
+    fig1.add_trace(go.Pie(labels=c_labels, values=df['Churn'].value_counts(), name="Churn"),
+                  1, 2)
+    # Use `hole` to create a donut-like pie chart
+    fig1.update_traces(hole=.4, hoverinfo="label+percent+name", textfont_size=16)
+    fig1.update_layout(
+        title_text="Gender and Churn Distributions",
+        # Add annotations in the center of the donut pies.
+        annotations=[dict(text='Gender', x=0.16, y=0.5, font_size=20, showarrow=False),
+                     dict(text='Churn', x=0.84, y=0.5, font_size=20, showarrow=False)])
+    fig2 = px.histogram(df, x="Churn", color="Contract", barmode="group", title="<b>Customer contract distribution<b>")
+    fig2.update_layout(width=700, height=500, bargap=0.1)
+    labels = df['PaymentMethod'].unique()
+    values = df['PaymentMethod'].value_counts()
+    fig3 = go.Figure(data=[go.Pie(labels=labels, values=values, hole=.3)])
+    fig3.update_layout(title_text="<b>Payment Method Distribution</b>")
+    fig4 = px.histogram(df, x="Churn", color="PaymentMethod", title="<b>Customer Payment Method distribution w.r.t. Churn</b>")
+    fig4.update_layout(width=700, height=500, bargap=0.1)
+    fig5 = go.Figure()
+    fig5.add_trace(go.Bar(
+      x = [['Churn:No', 'Churn:No', 'Churn:Yes', 'Churn:Yes'],
+           ["Female", "Male", "Female", "Male"]],
+      y = [965, 992, 219, 240],
+      name = 'DSL',
+    ))
+    fig5.add_trace(go.Bar(
+      x = [['Churn:No', 'Churn:No', 'Churn:Yes', 'Churn:Yes'],
+           ["Female", "Male", "Female", "Male"]],
+      y = [889, 910, 664, 633],
+      name = 'Fiber optic',
+    ))
+    fig5.add_trace(go.Bar(
+      x = [['Churn:No', 'Churn:No', 'Churn:Yes', 'Churn:Yes'],
+           ["Female", "Male", "Female", "Male"]],
+      y = [690, 717, 56, 57],
+      name = 'No Internet',
+    ))
+    fig5.update_layout(title_text="<b>Churn Distribution w.r.t. Internet Service and Gender</b>")
+    color_map = {"Yes": "#FF97FF", "No": "#AB63FA"}
+    fig6 = px.histogram(df, x="Churn", color="Dependents", barmode="group", title="<b>Dependents distribution</b>", color_discrete_map=color_map)
+    fig6.update_layout(width=700, height=500, bargap=0.1)
+    color_map = {"Yes": '#FFA15A', "No": '#00CC96'}
+    fig7 = px.histogram(df, x="Churn", color="Partner", barmode="group", title="<b>Churn distribution w.r.t. Partners</b>", color_discrete_map=color_map)
+    fig7.update_layout(width=700, height=500, bargap=0.1)
+    color_map = {"Yes": '#00CC96', "No": '#B6E880'}
+    fig8 = px.histogram(df, x="Churn", color="SeniorCitizen", title="<b>Churn distribution w.r.t. Senior Citizen</b>", color_discrete_map=color_map)
+    fig8.update_layout(width=700, height=500, bargap=0.1)
+    color_map = {"Yes": "#FF97FF", "No": "#AB63FA"}
+    fig9 = px.histogram(df, x="Churn", color="OnlineSecurity", barmode="group", title="<b>Churn distribution w.r.t Online Security</b>", color_discrete_map=color_map)
+    fig9.update_layout(width=700, height=500, bargap=0.1)
+    color_map = {"Yes": '#FFA15A', "No": '#00CC96'}
+    fig10 = px.histogram(df, x="Churn", color="PaperlessBilling",  title="<b>Churn distribution w.r.t. Paperless Billing</b>", color_discrete_map=color_map)
+    fig10.update_layout(width=700, height=500, bargap=0.1)
+    fig11 = px.histogram(df, x="Churn", color="TechSupport",barmode="group",  title="<b>Churn distribution w.r.t. Tech Support</b>")
+    fig11.update_layout(width=700, height=500, bargap=0.1)
+    color_map = {"Yes": '#00CC96', "No": '#B6E880'}
+    fig12 = px.histogram(df, x="Churn", color="PhoneService", title="<b>Churn Distribution w.r.t. Phone Service</b>", color_discrete_map=color_map)
+    fig12.update_layout(width=700, height=500, bargap=0.1)
+    fig13 = px.box(df, x='Churn', y = 'tenure')
+    fig13.update_yaxes(title_text='Tenure (Months)', row=1, col=1)
+    fig13.update_xaxes(title_text='Churn', row=1, col=1)
+    fig13.update_layout(autosize=True, width=750, height=600,
+        title_font=dict(size=25, family='Courier'),
+        title='<b>Tenure vs Churn</b>',
+    )
+    return fig1,fig2,fig3,fig4,fig5,fig6,fig7,fig8,fig9,fig10,fig11,fig12,fig13  
 
-        fig = go.Figure(data=[go.Pie(labels=labels, values=values, hole=.3)])
-        fig.update_layout(title_text="<b>Payment Method Distribution</b>")
-        return fig 
-    elif option == 'Payment Method Distribution Churn': 
-        fig = px.histogram(df, x="Churn", color="PaymentMethod", title="<b>Customer Payment Method distribution w.r.t. Churn</b>")
-        fig.update_layout(width=700, height=500, bargap=0.1)
-        return fig
-    elif option == 'Churn Distribution w.r.t Internet Service and Gender': 
-        fig = go.Figure()
-        fig.add_trace(go.Bar(
-          x = [['Churn:No', 'Churn:No', 'Churn:Yes', 'Churn:Yes'],
-               ["Female", "Male", "Female", "Male"]],
-          y = [965, 992, 219, 240],
-          name = 'DSL',
-        ))
-        fig.add_trace(go.Bar(
-          x = [['Churn:No', 'Churn:No', 'Churn:Yes', 'Churn:Yes'],
-               ["Female", "Male", "Female", "Male"]],
-          y = [889, 910, 664, 633],
-          name = 'Fiber optic',
-        ))
-        fig.add_trace(go.Bar(
-          x = [['Churn:No', 'Churn:No', 'Churn:Yes', 'Churn:Yes'],
-               ["Female", "Male", "Female", "Male"]],
-          y = [690, 717, 56, 57],
-          name = 'No Internet',
-        ))
-        fig.update_layout(title_text="<b>Churn Distribution w.r.t. Internet Service and Gender</b>")
-        return fig 
-    elif option == 'Dependents Distribution Churn':
-        color_map = {"Yes": "#FF97FF", "No": "#AB63FA"}
-        fig = px.histogram(df, x="Churn", color="Dependents", barmode="group", title="<b>Dependents distribution</b>", color_discrete_map=color_map)
-        fig.update_layout(width=700, height=500, bargap=0.1)
-        return fig 
-    elif option == 'Churn Distribution w.r.t Partners': 
-        color_map = {"Yes": '#FFA15A', "No": '#00CC96'}
-        fig = px.histogram(df, x="Churn", color="Partner", barmode="group", title="<b>Churn distribution w.r.t. Partners</b>", color_discrete_map=color_map)
-        fig.update_layout(width=700, height=500, bargap=0.1)
-        return fig
-    elif option == 'Churn Distribution w.r.t Senior Citizens': 
-        color_map = {"Yes": '#00CC96', "No": '#B6E880'}
-        fig = px.histogram(df, x="Churn", color="SeniorCitizen", title="<b>Churn distribution w.r.t. Senior Citizen</b>", color_discrete_map=color_map)
-        fig.update_layout(width=700, height=500, bargap=0.1)
-        return fig 
-    elif option == 'Churn Distribution w.r.t Online Security': 
-        color_map = {"Yes": "#FF97FF", "No": "#AB63FA"}
-        fig = px.histogram(df, x="Churn", color="OnlineSecurity", barmode="group", title="<b>Churn distribution w.r.t Online Security</b>", color_discrete_map=color_map)
-        fig.update_layout(width=700, height=500, bargap=0.1)
-        return fig 
-    elif option == 'Churn Distribution w.r.t Paperless Billing': 
-        color_map = {"Yes": '#FFA15A', "No": '#00CC96'}
-        fig = px.histogram(df, x="Churn", color="PaperlessBilling",  title="<b>Churn distribution w.r.t. Paperless Billing</b>", color_discrete_map=color_map)
-        fig.update_layout(width=700, height=500, bargap=0.1)
-        return fig 
-    elif option == 'Churn Distribution w.r.t Tech Support': 
-        fig = px.histogram(df, x="Churn", color="TechSupport",barmode="group",  title="<b>Churn distribution w.r.t. Tech Support</b>")
-        fig.update_layout(width=700, height=500, bargap=0.1)
-        return fig 
-    elif option == 'Churn Distribution w.r.t Phone Service': 
-        color_map = {"Yes": '#00CC96', "No": '#B6E880'}
-        fig = px.histogram(df, x="Churn", color="PhoneService", title="<b>Churn Distribution w.r.t. Phone Service</b>", color_discrete_map=color_map)
-        fig.update_layout(width=700, height=500, bargap=0.1)
-        return fig 
-    elif option == 'Tenure vs. Churn': 
-        fig = px.box(df, x='Churn', y = 'tenure')
-        fig.update_yaxes(title_text='Tenure (Months)', row=1, col=1)
-        fig.update_xaxes(title_text='Churn', row=1, col=1)
-        fig.update_layout(autosize=True, width=750, height=600,
-            title_font=dict(size=25, family='Courier'),
-            title='<b>Tenure vs Churn</b>',
-        )
-        return fig  
-
-def take_input(filepath,option): 
+def take_input(filepath): 
     df = pd.read_csv(filepath)
     processed_df = preprocess(df)
-    figure = visualize(processed_df,option)
-    return figure, processed_df
+    fig1,fig2,fig3,fig4,fig5,fig6,fig7,fig8,fig9,fig10,fig11,fig12,fig13 = visualize(processed_df)
+    return fig1,fig2,fig3,fig4,fig5,fig6,fig7,fig8,fig9,fig10,fig11,fig12,fig13, processed_df

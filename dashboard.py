@@ -29,7 +29,7 @@ from sklearn.metrics import recall_score, confusion_matrix, precision_score, f1_
 import func as fc 
 from io import StringIO
 st.set_page_config(layout='wide')  
-tab1, tab2, tab3 = st.tabs(['Data','Visualization','ML'])
+tab1, tab2 = st.tabs(['Data','ML'])
 #loading the options list from the functions file func.py 
 optionList = fc.OPTION_LIST
 modelList = fc.MODEL_SELECTOR
@@ -40,12 +40,49 @@ with tab1:
     #print(type(uploaded_dataframe))
 if uploaded_dataframe is not None: 
     if option is not None : 
-        figure,processed_df = fc.take_input(uploaded_dataframe,option)
+        fig1,fig2,fig3,fig4,fig5,fig6,fig7,fig8,fig9,fig10,fig11,fig12,fig13, processed_df = fc.take_input(uploaded_dataframe)
         with tab1: 
-            st.dataframe(processed_df)
-        with tab2: 
-            st.plotly_chart(figure,use_container_width=True)  
-with tab3: 
+            st.dataframe(processed_df) 
+            with st.container(): 
+                col1, col2, col3 = st.columns(3) 
+                with col1: 
+                    st.plotly_chart(fig1, use_container_width=True)
+                with col2: 
+                    st.plotly_chart(fig2,use_container_width=True)
+                with col3: 
+                    st.plotly_chart(fig3,use_container_width=True)
+            with st.container(): 
+                col1, col2, col3 = st.columns(3) 
+                with col1: 
+                    st.plotly_chart(fig4, use_container_width=True)
+                with col2: 
+                    st.plotly_chart(fig5,use_container_width=True)
+                with col3: 
+                    st.plotly_chart(fig6,use_container_width=True)
+            with st.container(): 
+                col1, col2, col3 = st.columns(3) 
+                with col1: 
+                    st.plotly_chart(fig7, use_container_width=True)
+                with col2: 
+                    st.plotly_chart(fig8,use_container_width=True)
+                with col3: 
+                    st.plotly_chart(fig9,use_container_width=True)
+            with st.container(): 
+                col1, col2, col3, col4 = st.columns(4) 
+                with col1: 
+                    st.plotly_chart(fig10, use_container_width=True)
+                with col2: 
+                    st.plotly_chart(fig11,use_container_width=True)
+                with col3: 
+                    st.plotly_chart(fig12,use_container_width=True)
+                with col4: 
+                    st.plotly_chart(fig13,use_container_width=True)
+                       
+
+        #removing the secondary tab 
+        #with tab2: 
+        #    st.plotly_chart(figure,use_container_width=True)  
+with tab2: 
     modeloption = st.selectbox('Select an ML Model',modelList)
     uploaded_dataframe = st.file_uploader("Choose a file", key=2)
     test_size_slider = st.slider('Enter the test size: ',0.0,1.0)
